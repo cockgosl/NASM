@@ -3,12 +3,7 @@
 extern void my_printf(const char* string, ...);
 
 int main() {
-    char m = 'm';
-    char e = 'e';
-    char o = 'o';
-    char w = 'w';
-    char* meow = "meowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww";
     int h = 987;
-    my_printf("%x\n", h);
+    my_printf("%x\n", h) //output will be : 3DB
     return 0;
 }
