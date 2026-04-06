@@ -3,4 +3,4 @@ This is a try to write printf on assembler. It handles specificators, %b, %c, %d
 
 Maximum amount of output is 256, the programm handles overflow by cutting everything, that is out of range. After user runs the programm, the output : <img width="1303" height="43" alt="image" src="https://github.com/user-attachments/assets/3522a953-614c-4db1-880c-e494f6504bb1" />
 
-You can use my printf as the standart one 
+You can use my printf as the standart one (extern void my_printf(const char* string, ...); is needed)
