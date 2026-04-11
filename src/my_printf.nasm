@@ -235,7 +235,7 @@ loop .COPY
         
 
 
-        case_rsi:                       
+        case_rsi:                       ;call convension(where are the arguments being stored):
         mov rax, rsi                    ;the second argument is in rsi
         jmp GO_BACK     
         case_rdx:
