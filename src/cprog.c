@@ -1,15 +1,12 @@
-#include <stdlib.h> 
-#include <string.h>
+// #include <stdlib.h> 
+// #include <stdio.h>
+// #include <string.h>
 extern void my_printf(const char* string, ...);
 
 int main() {
     int h = 987;
-    my_printf("%o\n%d %s %x %d%%%c%b\n%d %s %x %d%%%c%b", -1, -1, "love", 3802, 100, 33, 127,
-                                                                 -1, "love", 3802, 100, 33, 127);
-                                                                 
-    //Expected Output:
-    //0o377777777777
-    //-1 love 0x430 100%!0b1111111
-    //-1 love 0x430 100%!0b1111111
+    char* s = "123456789q24w";
+    char* string = "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS100000000000000000000000000002000";
+    my_printf("%s %x",s, h);
     return 0;
 }

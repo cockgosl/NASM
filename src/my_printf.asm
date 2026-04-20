@@ -14,8 +14,10 @@ my_printf:
 ;---------------------------------------------------------------------------;
 
         WRITING:
-        cmp word [rel len], 256                 ;here and from then on , if 256 symbols were written - the buffer is filled
-        jae STOP
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+        call FILLED
+        .SKIP:
         movzx r10, word [rel index]             ;Index - the number of the symbol that we are to read from rdi
         mov al, [rdi + r10]                                    
         cmp al, 0                               ;if the NULL byte is given, we've read everything, so terminate              
@@ -24,7 +26,7 @@ my_printf:
         mov [rel symbol], al                    ;initial value should be saved to use in case default
         cmp al, '%'                             ;the specifications are separated with %
         jne case_default                        ;if not % - just put the symbol in buf_to_wr
-
+        
         movzx rbx, byte [rdi + r10 + 1]          
 
         cmp rbx, byte 'b'                       ;if % - check if the next symbol after it is within our range
@@ -82,8 +84,11 @@ GO_BACK:                                        ;the value is stored in rax
         mov rcx , r8 
 
 .COPY:
-        cmp word [rel len], 256
-        jae .END
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+        call FILLED
+        .SKIP:
+        
         dec r8
         movzx r10, word [rel len]               
         mov al, byte [rdi + r8]                 ;the symbols from convert_value are being written in buff_t_wr
@@ -98,12 +103,15 @@ loop .COPY
         pop rdx
         pop rdi
         ret
+
 ;---------------------------------------------------------------------------;
 ;the bytes are being written in the binary way with (1/0)                   ;
 ;---------------------------------------------------------------------------;
         case_b:
-        cmp word [rel len], 256
-        jae STOP
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+        call FILLED
+        .SKIP:
 
         push r9
 
@@ -121,8 +129,10 @@ loop .COPY
 ;---------------------------------------------------------------------------;
 
         case_c:
-        cmp word [rel len], 256
-        jae STOP
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+        call FILLED
+        .SKIP:
         lea r11, [rel buff_to_wr]               ;char case - it puts the symbol in r11:[r10] 
         movzx r10, word [rel len]
         mov [r11 + r10], byte al
@@ -137,8 +147,10 @@ loop .COPY
 ;--------------------------------------------------------------------------;
 
         case_d:
-        cmp word [rel len], 256
-        jae STOP
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIPf
+        call FILLED
+        .SKIPf:
         push r9
         mov r9, 10                               ;rax will be divided by 10
 
@@ -163,8 +175,11 @@ loop .COPY
 ;--------------------------------------------------------------------------;
         case_o:
 
-        cmp word [rel len], 256
-        jae STOP
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+        call FILLED
+        .SKIP:
+
         push r9
         mov r9, 8                               ;rax will be divided by 8
 
@@ -178,17 +193,17 @@ loop .COPY
 ;filled.                                                                     ;
 ;---------------------------------------------------------------------------;
         case_s:
-        push rcx
         push r9
         lea r11, [rel buff_to_wr]               ;symbols will be written in r11:[r10]
-        movzx r10, word [rel len] 
-        xor rcx, rcx         
-        mov ecx, 256   
-        sub ecx, r10d                           ;the maximum amount of symbols, that can be written is
-        xor r9, r9                              ;256 - current len.
+        xor r9, r9                              ;10 - current len.
 .COPY:
-        cmp word [rel len], 256
-        jae .END
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+
+        call FILLED
+        movzx r10, word [rel len] 
+
+        .SKIP:
         cmp byte [rax + r9], 0
         je .END
         mov bl , [rax + r9]
@@ -196,24 +211,26 @@ loop .COPY
         inc r9
         inc r10
         add word [rel len], 1
-loop .COPY
+jmp .COPY
 .END:
+        call FILLED
         add word [rel index], 2
         add word [rel counter], 1
         pop r9
-        pop rcx
         jmp WRITING
 
 ;--------------------------------------------------------------------------;
 ;the bytes are being written in the binary way with (0,...,9,A,..,F )      ;
 ;--------------------------------------------------------------------------;
         case_x:
-        cmp word [rel len], 256
-        jae STOP
+        cmp word [rel len], 10                 ;here and from then on , if 10 symbols were written - the buffer is filled
+        jb .SKIP
+        call FILLED
+        .SKIP:
         push r9
         mov r9, 16                               ;rax will be divided by 16
 
-        call CONVERT
+        call CONVERT                    
         pop r9
         jmp WRITING
 ;---------------------------------------------------------------------------;
@@ -231,13 +248,34 @@ loop .COPY
 ;---------------------------------------------------------------------------;
 
 
+        FILLED:
+        push rdi
+        push rsi 
+        push rdx 
+        push rax
+        push r11
+        push r10
+        push rcx
 
-        STOP:
         mov rdi, 1
         lea rsi, [rel buff_to_wr] 
         movzx rdx, word [rel len]
+        mov word [rel len],  0
         mov rax, 1
         syscall
+        
+        pop rcx
+        pop r10
+        pop r11
+        pop rax
+        pop rdx 
+        pop rsi 
+        pop rdi 
+
+        ret
+
+        STOP:
+        call FILLED
         ret
 
         GET_CURRENT_VALUE:
@@ -269,15 +307,15 @@ loop .COPY
 
 section .data
 ;---------------------------------------------------------------------------;
-
-        symbol db 0
+        symbol db 0                     ;использовать локальные переменные
         len dw 0
         index dw 0
         counter dw 0
 ;---------------------------------------------------------------------------;
 
         buff_to_wr:
-        times (256) db 0
+        times (10) db 0                ;замкнуть вывод + пример
+                                        ;sdl sfml - graphics
 
 ;---------------------------------------------------------------------------;
 
@@ -311,4 +349,4 @@ section .data
         times (64) db 0
 ;---------------------------------------------------------------------------;
 
-section .note.GNU-stack noalloc noexec nowrite progbits
+;section .note.GNU-stack noalloc noexec nowrite progbits
